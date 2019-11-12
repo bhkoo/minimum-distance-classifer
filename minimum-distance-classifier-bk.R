@@ -10,15 +10,21 @@ train <- read.csv("./input/train.csv")
 ### Rotates matrix by reversing and then transposing
 rotate <- function(x) t(apply(x, 2, rev))
 
+### display_img
+### display heatmap image from vector of pixel values
+display_img <- function(x, nrow, ncol, col) {
+  img <- matrix(data = unlist(rev(x)), nrow = nrow, ncol = ncol, byrow = FALSE)
+  img <- apply(img, 2, rev)
+  image(img, col = col, axes = FALSE)
+}
+
 ### Visualization
 set.seed(71)
 
 par(mfrow = c(10, 10), mar = c(0.1, 0.1, 0.1, 0.1))
 
 for (index in sample(which(train$label == 1), 100)) {
-  img <- matrix(data = unlist(rev(train[index, -1])), nrow = 28, ncol = 28, byrow = FALSE)
-  img <- apply(img, 2, rev)
-  image(img, col = heat.colors(12), axes = FALSE)
+  display_img(train[index, -1], nrow = 28, ncol = 28, col = heat.colors(12))
 }
 
 ### Split data into test and train sets
@@ -50,9 +56,7 @@ set.seed(71)
 par(mfrow = c(10, 10), mar = c(0.1, 0.1, 0.1, 0.1))
 
 for (index in sample(nrow(train_X), 100)) {
-  img <- matrix(data = unlist(rev(train_X[index, ])), nrow = 28, ncol = 28, byrow = FALSE)
-  img <- apply(img, 2, rev)
-  image(img, col = heat.colors(12), axes = FALSE)
+  display_img(train_X[index, ], nrow = 28, ncol = 28, col = heat.colors(12))
 }
 
 ### Predictions!
@@ -74,4 +78,17 @@ table(predictions$predicted, predictions$actual)
 
 print(paste0("Accuracy: ", sum(predictions$predicted == predictions$actual)/nrow(predictions) * 100, "%"))
 
-### Visualization TK
+### Visualization
+par(mfcol = c(14, 14), mar = c(0.1, 0.1, 0.1, 0.1))
+
+data <- 101:198
+for (k in data) {
+  row <- test_X[k, ]
+  display_img(row, nrow = 28, ncol = 28, col = topo.colors(12))
+}
+
+data <- predictions$cluster[101:198]
+for (k in data) {
+  row <- train_X[k, ]
+  display_img(row, nrow = 28, ncol = 28, col = heat.colors(12))
+}
